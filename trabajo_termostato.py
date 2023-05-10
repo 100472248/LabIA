@@ -73,7 +73,7 @@ class Termostato:
         valor_estados = self.proceso_optimo(valor_estados, ruta, costeON, costeOFF, 0)
         return valor_estados
 
-    def proceso_optimo(self, dict_valores, ruta, costeON, costeOFF, num_veces):
+    def proceso_optimo(self, dict_valores: dict, ruta, costeON, costeOFF, num_veces):
         nuevos_valores = []
         for elemento in range(0, len(self.temperaturas)):
             nuevos_valores.append(0)
@@ -91,48 +91,48 @@ class Termostato:
             elif elemento == 22:
                 contador += 1
             elif elemento == 24.5:
-                nuevos_valores[17] = min(costeON +
-                                         self.prob_ON["24.5"]["+0.5"] * dict_valores["25"]
-                                         + self.prob_ON["24.5"]["+0"] * dict_valores["24.5"]
-                                         + self.prob_ON["24.5"]["-0.5"] * dict_valores["24"],
-                                         costeOFF +
-                                         self.prob_OFF["24.5"]["+0.5"] * dict_valores["25"]
-                                         + self.prob_OFF["24.5"]["+0"] * dict_valores["24.5"]
-                                         + self.prob_OFF["24.5"]["-0.5"] * dict_valores["24"])
+                valor1 = costeON + self.prob_ON["24.5"]["+0.5"] * dict_valores["25"] \
+                         + self.prob_ON["24.5"]["+0"] * dict_valores["24.5"]\
+                         + self.prob_ON["24.5"]["-0.5"] * dict_valores["24"]
+                valor2 = costeOFF + self.prob_OFF["24.5"]["+0.5"] * dict_valores["25"]\
+                         + self.prob_OFF["24.5"]["+0"] * dict_valores["24.5"]\
+                         + self.prob_OFF["24.5"]["-0.5"] * dict_valores["24"]
+                nuevos_valores[17], paso = self.metodo_usado(valor1, valor2)
+                ruta["24.5"].append(paso)
+
             elif elemento == 25:
-                nuevos_valores[18] = min(costeON +
-                                         self.prob_ON["25"]["+0"] * dict_valores["25"]
-                                         + self.prob_ON["25"]["-0.5"] * dict_valores["24.5"],
-                                         costeOFF +
-                                         self.prob_OFF["25"]["+0"] * dict_valores["25"]
-                                         + self.prob_OFF["25"]["-0.5"] * dict_valores["24.5"])
+                valor1 = costeON + self.prob_ON["25"]["+0"] * dict_valores["25"]\
+                         + self.prob_ON["25"]["-0.5"] * dict_valores["24.5"]
+                valor2 = costeOFF + self.prob_OFF["25"]["+0"] * dict_valores["25"]\
+                         + self.prob_OFF["25"]["-0.5"] * dict_valores["24.5"]
+                nuevos_valores[18], paso = self.metodo_usado(valor1, valor2)
+                ruta["25"].append(paso)
             else:
                 actual = str(elemento)
                 anterior = str(self.temperaturas[contador - 1])
                 posterior = str(self.temperaturas[contador + 1])
                 next_posterior = str(self.temperaturas[contador + 2])
-                nuevos_valores[contador] = min(costeON + self.prob_ON["16.5-24"]["+1"] * dict_valores[next_posterior]
-                                               + self.prob_ON["16.5-24"]["+0.5"] * dict_valores[posterior]
-                                               + self.prob_ON["16.5-24"]["+0"] * dict_valores[actual]
-                                               + self.prob_ON["16.5-24"]["-0.5"] * dict_valores[anterior],
-                                               costeOFF + self.prob_OFF["16.5-24"]["+0.5"] * dict_valores[
-                                                   posterior]
-                                               + self.prob_OFF["16.5-24"]["+0"] * dict_valores[actual]
-                                               + self.prob_OFF["16.5-24"]["-0.5"] * dict_valores[
-                                                   anterior])
+                print(actual, anterior, posterior, next_posterior)
+                valor1 = costeON + self.prob_ON["16.5-24"]["+1"] * dict_valores[next_posterior]\
+                         + self.prob_ON["16.5-24"]["+0.5"] * dict_valores[posterior]\
+                         + self.prob_ON["16.5-24"]["+0"] * dict_valores[actual]\
+                         + self.prob_ON["16.5-24"]["-0.5"] * dict_valores[anterior]
+                valor2 = costeOFF + self.prob_OFF["16.5-24"]["+0.5"] * dict_valores[posterior] \
+                         + self.prob_OFF["16.5-24"]["+0"] * dict_valores[actual]\
+                         + self.prob_OFF["16.5-24"]["-0.5"] * dict_valores[anterior]
+                nuevos_valores[contador], paso = self.metodo_usado(valor1, valor2)
+                ruta[actual].append(paso)
                 contador += 1
 
         fin = self.comparar_valores(nuevos_valores, dict_valores)
-        print("En la iteración", num_veces, "tenemos estos datos:")
         contador = 0
         for elemento in self.temperaturas:
             dict_valores[str(elemento)] = round(nuevos_valores[contador], 2)
-            print("Valor", elemento, ":", dict_valores[str(elemento)])
             contador += 1
         if not fin:
             num_veces += 1
-            dict_valores = self.proceso_optimo(dict_valores, ruta, costeON, costeOFF, num_veces)
-        return dict_valores
+            dict_valores, ruta, num_veces = self.proceso_optimo(dict_valores, ruta, costeON, costeOFF, num_veces)
+        return dict_valores, ruta, num_veces
 
     def comparar_valores(self, nuevos_valores, valor_estados):
         contador = 0
@@ -151,13 +151,35 @@ class Termostato:
 
 
 prueba = Termostato()
+cierto = True
+cifra = 0
+num = None
+while cierto:
+    num = input("Escribe un número del 1 al 25:")
+    cifra = float(num)
+    if cifra in prueba.temperaturas:
+        cierto = False
+    else:
+        print("Vuelve a escribirlo. Número incorrecto.")
 print("Test1")
-prueba.proceso1()
-print("Test2")
-prueba.proceso2()
-print("Test3")
-prueba.proceso3()
-print("Test4")
-prueba.proceso4()
-print("Test5")
-prueba.proceso5()
+valores1, ruta1, it1 = prueba.proceso1()
+valores2, ruta2, it2 = prueba.proceso2()
+valores3, ruta3, it3 = prueba.proceso3()
+valores4, ruta4, it4 = prueba.proceso4()
+valores5, ruta5, it5 = prueba.proceso5()
+print("Para valor", cifra, " tenemos estos datos:")
+print("PRUEBA1:")
+print("num_iteraciones:", it1, ", peso:", valores1[num])
+print("ruta realizada:", ruta1[num])
+print("PRUEBA2:")
+print("num_iteraciones:", it2, ", peso:", valores2[num])
+print("ruta realizada:", ruta2[num])
+print("PRUEBA3:")
+print("num_iteraciones:", it3, ", peso:", valores3[num])
+print("ruta realizada:", ruta3[num])
+print("PRUEBA4:")
+print("num_iteraciones:", it4, ", peso:", valores4[num])
+print("ruta realizada:", ruta4[num])
+print("PRUEBA5:")
+print("num_iteraciones:", it5, ", peso:", valores5[num])
+print("ruta realizada:", ruta5[num])
