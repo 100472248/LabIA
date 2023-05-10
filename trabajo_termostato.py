@@ -1,8 +1,12 @@
+# CÓDIGO ALGORITMO
 class Termostato:
     def __init__(self):
+        # Indicamos las distintas temperaturas y sus probabilidades.
         self.temperaturas = [16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 20.5, 21, 21.5, 22, 22.5, 23, 23.5,
                              24, 24.5, 25]
         self.estado_final = 22
+        # Hemos diferenciado las probabilidades on y off. Además, hemos organizado las que están
+        # entre 16.5 y 24 en un mismo grupo, ya que son iguales.
         self.prob_ON = {"16": {"+1": 0.2, "+0.5": 0.5, "+0": 0.3},
                         "16.5-24": {"+1": 0.2, "+0.5": 0.5, "+0": 0.1, "-0.5": 0.2},
                         "24.5": {"+0.5": 0.7, "+0": 0.2, "-0.5": 0.1},
@@ -13,12 +17,13 @@ class Termostato:
                          "25": {"+0": 0.3, "-0.5": 0.7}}
 
     def proceso1(self):
+        # En la que coste ON es el doble que el de OFF
         valor_estados = {"16": 0, "16.5": 0, "17": 0, "17.5": 0, "18": 0, "18.5": 0, "19": 0,
                          "19.5": 0, "20": 0, "20.5": 0, "21": 0, "21.5": 0, "22": 0,
                          "22.5": 0, "23": 0, "23.5": 0, "24": 0, "24.5": 0, "25": 0}
         ruta = {"16": [], "16.5": [], "17": [], "17.5": [], "18": [], "18.5": [], "19": [],
-                         "19.5": [], "20": [], "20.5": [], "21": [], "21.5": [], "22": [],
-                         "22.5": [], "23": [], "23.5": [], "24": [], "24.5": [], "25": []}
+                "19.5": [], "20": [], "20.5": [], "21": [], "21.5": [], "22": [],
+                "22.5": [], "23": [], "23.5": [], "24": [], "24.5": [], "25": []}
 
         costeON = 2
         costeOFF = 1
@@ -26,30 +31,33 @@ class Termostato:
         return valor_estados
 
     def proceso2(self):
+        # En la que coste OFF es el doble que el de ON
         valor_estados = {"16": 0, "16.5": 0, "17": 0, "17.5": 0, "18": 0, "18.5": 0, "19": 0,
                          "19.5": 0, "20": 0, "20.5": 0, "21": 0, "21.5": 0, "22": 0,
                          "22.5": 0, "23": 0, "23.5": 0, "24": 0, "24.5": 0, "25": 0}
         ruta = {"16": [], "16.5": [], "17": [], "17.5": [], "18": [], "18.5": [], "19": [],
-                 "19.5": [], "20": [], "20.5": [], "21": [], "21.5": [], "22": [],
-                 "22.5": [], "23": [], "23.5": [], "24": [], "24.5": [], "25": []}
+                "19.5": [], "20": [], "20.5": [], "21": [], "21.5": [], "22": [],
+                "22.5": [], "23": [], "23.5": [], "24": [], "24.5": [], "25": []}
         costeON = 1
         costeOFF = 1
         valor_estados = self.proceso_optimo(valor_estados, ruta, costeON, costeOFF, 0)
         return valor_estados
 
     def proceso3(self):
+        # En la que ambos costes son iguales
         valor_estados = {"16": 0, "16.5": 0, "17": 0, "17.5": 0, "18": 0, "18.5": 0, "19": 0,
                          "19.5": 0, "20": 0, "20.5": 0, "21": 0, "21.5": 0, "22": 0,
                          "22.5": 0, "23": 0, "23.5": 0, "24": 0, "24.5": 0, "25": 0}
         ruta = {"16": [], "16.5": [], "17": [], "17.5": [], "18": [], "18.5": [], "19": [],
-                 "19.5": [], "20": [], "20.5": [], "21": [], "21.5": [], "22": [],
-                 "22.5": [], "23": [], "23.5": [], "24": [], "24.5": [], "25": []}
+                "19.5": [], "20": [], "20.5": [], "21": [], "21.5": [], "22": [],
+                "22.5": [], "23": [], "23.5": [], "24": [], "24.5": [], "25": []}
         costeON = 1
         costeOFF = 2
         valor_estados = self.proceso_optimo(valor_estados, ruta, costeON, costeOFF, 0)
         return valor_estados
 
     def proceso4(self):
+        # En la que coste ON es el triple que el de OFF
         valor_estados = {"16": 0, "16.5": 0, "17": 0, "17.5": 0, "18": 0, "18.5": 0, "19": 0,
                          "19.5": 0, "20": 0, "20.5": 0, "21": 0, "21.5": 0, "22": 0,
                          "22.5": 0, "23": 0, "23.5": 0, "24": 0, "24.5": 0, "25": 0}
@@ -62,6 +70,7 @@ class Termostato:
         return valor_estados
 
     def proceso5(self):
+        # En la que coste OFF es el triple que el de ON
         valor_estados = {"16": 0, "16.5": 0, "17": 0, "17.5": 0, "18": 0, "18.5": 0, "19": 0,
                          "19.5": 0, "20": 0, "20.5": 0, "21": 0, "21.5": 0, "22": 0,
                          "22.5": 0, "23": 0, "23.5": 0, "24": 0, "24.5": 0, "25": 0}
@@ -74,6 +83,7 @@ class Termostato:
         return valor_estados
 
     def proceso_optimo(self, dict_valores: dict, ruta, costeON, costeOFF, num_veces):
+        """Es un proceso recursivo en el que se realiza la ecuación de Bellman"""
         nuevos_valores = []
         for elemento in range(0, len(self.temperaturas)):
             nuevos_valores.append(0)
@@ -81,9 +91,9 @@ class Termostato:
         for elemento in self.temperaturas:
             if elemento == 16:
                 valor1 = costeON + self.prob_ON["16"]["+1"] * dict_valores["17"] \
-                         + self.prob_ON["16"]["+0.5"] * dict_valores["16.5"]\
+                         + self.prob_ON["16"]["+0.5"] * dict_valores["16.5"] \
                          + self.prob_ON["16"]["+0"] * dict_valores["16"]
-                valor2 = costeOFF + self.prob_OFF["16"]["+0.5"] * dict_valores["16.5"]\
+                valor2 = costeOFF + self.prob_OFF["16"]["+0.5"] * dict_valores["16.5"] \
                          + self.prob_OFF["16"]["+0"] * dict_valores["16"]
                 nuevos_valores[0], paso = self.metodo_usado(valor1, valor2)
                 ruta["16"].append(paso)
@@ -92,18 +102,18 @@ class Termostato:
                 contador += 1
             elif elemento == 24.5:
                 valor1 = costeON + self.prob_ON["24.5"]["+0.5"] * dict_valores["25"] \
-                         + self.prob_ON["24.5"]["+0"] * dict_valores["24.5"]\
+                         + self.prob_ON["24.5"]["+0"] * dict_valores["24.5"] \
                          + self.prob_ON["24.5"]["-0.5"] * dict_valores["24"]
-                valor2 = costeOFF + self.prob_OFF["24.5"]["+0.5"] * dict_valores["25"]\
-                         + self.prob_OFF["24.5"]["+0"] * dict_valores["24.5"]\
+                valor2 = costeOFF + self.prob_OFF["24.5"]["+0.5"] * dict_valores["25"] \
+                         + self.prob_OFF["24.5"]["+0"] * dict_valores["24.5"] \
                          + self.prob_OFF["24.5"]["-0.5"] * dict_valores["24"]
                 nuevos_valores[17], paso = self.metodo_usado(valor1, valor2)
                 ruta["24.5"].append(paso)
 
             elif elemento == 25:
-                valor1 = costeON + self.prob_ON["25"]["+0"] * dict_valores["25"]\
+                valor1 = costeON + self.prob_ON["25"]["+0"] * dict_valores["25"] \
                          + self.prob_ON["25"]["-0.5"] * dict_valores["24.5"]
-                valor2 = costeOFF + self.prob_OFF["25"]["+0"] * dict_valores["25"]\
+                valor2 = costeOFF + self.prob_OFF["25"]["+0"] * dict_valores["25"] \
                          + self.prob_OFF["25"]["-0.5"] * dict_valores["24.5"]
                 nuevos_valores[18], paso = self.metodo_usado(valor1, valor2)
                 ruta["25"].append(paso)
@@ -113,12 +123,12 @@ class Termostato:
                 posterior = str(self.temperaturas[contador + 1])
                 next_posterior = str(self.temperaturas[contador + 2])
                 print(actual, anterior, posterior, next_posterior)
-                valor1 = costeON + self.prob_ON["16.5-24"]["+1"] * dict_valores[next_posterior]\
-                         + self.prob_ON["16.5-24"]["+0.5"] * dict_valores[posterior]\
-                         + self.prob_ON["16.5-24"]["+0"] * dict_valores[actual]\
+                valor1 = costeON + self.prob_ON["16.5-24"]["+1"] * dict_valores[next_posterior] \
+                         + self.prob_ON["16.5-24"]["+0.5"] * dict_valores[posterior] \
+                         + self.prob_ON["16.5-24"]["+0"] * dict_valores[actual] \
                          + self.prob_ON["16.5-24"]["-0.5"] * dict_valores[anterior]
                 valor2 = costeOFF + self.prob_OFF["16.5-24"]["+0.5"] * dict_valores[posterior] \
-                         + self.prob_OFF["16.5-24"]["+0"] * dict_valores[actual]\
+                         + self.prob_OFF["16.5-24"]["+0"] * dict_valores[actual] \
                          + self.prob_OFF["16.5-24"]["-0.5"] * dict_valores[anterior]
                 nuevos_valores[contador], paso = self.metodo_usado(valor1, valor2)
                 ruta[actual].append(paso)
@@ -135,6 +145,7 @@ class Termostato:
         return dict_valores, ruta, num_veces
 
     def comparar_valores(self, nuevos_valores, valor_estados):
+        """Para ver si se repite o no el proceso"""
         contador = 0
         for elemento in self.temperaturas:
             num1 = round(nuevos_valores[contador], 2)
@@ -145,11 +156,13 @@ class Termostato:
         return True
 
     def metodo_usado(self, valorON, valorOFF):
+        """Para devolver si el termostato está ON o OFF"""
         if valorOFF < valorON:
             return valorOFF, "OFF"
         return valorON, "ON"
 
 
+# CÓDIGO BASE
 prueba = Termostato()
 cierto = True
 cifra = 0
