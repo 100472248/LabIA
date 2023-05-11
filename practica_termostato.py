@@ -122,7 +122,6 @@ class Termostato:
                 anterior = str(self.temperaturas[contador - 1])
                 posterior = str(self.temperaturas[contador + 1])
                 next_posterior = str(self.temperaturas[contador + 2])
-                print(actual, anterior, posterior, next_posterior)
                 valor1 = costeON + self.prob_ON["16.5-24"]["+1"] * dict_valores[next_posterior] \
                          + self.prob_ON["16.5-24"]["+0.5"] * dict_valores[posterior] \
                          + self.prob_ON["16.5-24"]["+0"] * dict_valores[actual] \
@@ -168,13 +167,13 @@ cierto = True
 cifra = 0
 num = None
 while cierto:
-    num = input("Escribe un número del 1 al 25:")
+    num = input("Escribe un número del 16 al 25:")
     cifra = float(num)
     if cifra in prueba.temperaturas:
         cierto = False
     else:
         print("Vuelve a escribirlo. Número incorrecto.")
-print("Test1")
+
 valores1, ruta1, it1 = prueba.proceso1()
 valores2, ruta2, it2 = prueba.proceso2()
 valores3, ruta3, it3 = prueba.proceso3()
@@ -196,3 +195,4 @@ print("ruta realizada:", ruta4[num])
 print("PRUEBA5:")
 print("num_iteraciones:", it5, ", peso:", valores5[num])
 print("ruta realizada:", ruta5[num])
+print(valores5)
