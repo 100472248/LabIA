@@ -1,4 +1,6 @@
 from Csv import Csv
+
+
 class Termostato:
     def __init__(self, temp_inicial: float, costeON: int, costeOFF: int):
         # Indicamos las distintas temperaturas y sus probabilidades.
@@ -32,59 +34,71 @@ class Termostato:
         nuevos_valores = []
         contador = 1
         for elemento in self.temperaturas:
+            # Diferenciamos los estados 16, 22, 24.5 y 25 porque no siguen la misma estructura
+            # que el resto.
             if elemento == 16:
-                valor1 = self.__costeON + self.prob_ON["16"]["+1"] * self.valor_estados["17"] \
-                         + self.prob_ON["16"]["+0.5"] * self.valor_estados["16.5"] \
-                         + self.prob_ON["16"]["+0"] * self.valor_estados["16"]
+                valorON = self.__costeON + self.prob_ON["16"]["+1"] * self.valor_estados["17"] \
+                          + self.prob_ON["16"]["+0.5"] * self.valor_estados["16.5"] \
+                          + self.prob_ON["16"]["+0"] * self.valor_estados["16"]
                 valor2 = self.__costeOFF + self.prob_OFF["16"]["+0.5"] * self.valor_estados["16.5"] \
                          + self.prob_OFF["16"]["+0"] * self.valor_estados["16"]
-                next_valor, paso = self.metodo_usado(valor1, valor2)
+                next_valor, paso = self.metodo_usado(valorON, valor2)
                 self.ruta["16"].append(paso)
                 nuevos_valores.append(next_valor)
 
             elif elemento == 22:
+                # Como es el estado final, su coste siempre es 0.
                 nuevos_valores.append(0)
                 contador += 1
             elif elemento == 24.5:
-                valor1 = self.__costeON + self.prob_ON["24.5"]["+0.5"] * self.valor_estados["25"] \
-                         + self.prob_ON["24.5"]["+0"] * self.valor_estados["24.5"] \
-                         + self.prob_ON["24.5"]["-0.5"] * self.valor_estados["24"]
+                valorON = self.__costeON + self.prob_ON["24.5"]["+0.5"] * self.valor_estados["25"] \
+                          + self.prob_ON["24.5"]["+0"] * self.valor_estados["24.5"] \
+                          + self.prob_ON["24.5"]["-0.5"] * self.valor_estados["24"]
                 valor2 = self.__costeOFF + self.prob_OFF["24.5"]["+0.5"] * self.valor_estados["25"] \
                          + self.prob_OFF["24.5"]["+0"] * self.valor_estados["24.5"] \
                          + self.prob_OFF["24.5"]["-0.5"] * self.valor_estados["24"]
-                next_valor, paso = self.metodo_usado(valor1, valor2)
+                next_valor, paso = self.metodo_usado(valorON, valor2)
                 self.ruta["24.5"].append(paso)
                 nuevos_valores.append(next_valor)
 
             elif elemento == 25:
-                valor1 = self.__costeON + self.prob_ON["25"]["+0"] * self.valor_estados["25"] \
-                         + self.prob_ON["25"]["-0.5"] * self.valor_estados["24.5"]
+                valorON = self.__costeON + self.prob_ON["25"]["+0"] * self.valor_estados["25"] \
+                          + self.prob_ON["25"]["-0.5"] * self.valor_estados["24.5"]
                 valor2 = self.__costeOFF + self.prob_OFF["25"]["+0"] * self.valor_estados["25"] \
                          + self.prob_OFF["25"]["-0.5"] * self.valor_estados["24.5"]
-                next_valor, paso = self.metodo_usado(valor1, valor2)
+                next_valor, paso = self.metodo_usado(valorON, valor2)
                 self.ruta["25"].append(paso)
                 nuevos_valores.append(next_valor)
             else:
+                # Se calcula el estado anterior en la lista y los dos siguientes porque son los que
+                # están conectados con el actual.
                 actual = str(elemento)
+                # Utilizamos la lista de temperaturas para que no hay problema entre flotantes y enteros.
                 anterior = str(self.temperaturas[contador - 1])
                 posterior = str(self.temperaturas[contador + 1])
                 next_posterior = str(self.temperaturas[contador + 2])
-                valor1 = self.__costeON + self.prob_ON[actual]["+1"] * self.valor_estados[next_posterior] \
-                         + self.prob_ON[actual]["+0.5"] * self.valor_estados[posterior] \
-                         + self.prob_ON[actual]["+0"] * self.valor_estados[actual] \
-                         + self.prob_ON[actual]["-0.5"] * self.valor_estados[anterior]
-                valor2 = self.__costeOFF + self.prob_OFF[actual]["+0.5"] * self.valor_estados[posterior] \
-                         + self.prob_OFF[actual]["+0"] * self.valor_estados[actual] \
-                         + self.prob_OFF[actual]["-0.5"] * self.valor_estados[anterior]
-                next_valor, paso = self.metodo_usado(valor1, valor2)
+                # Ecuación de Bellman. En vez de usar min(), hemos optado en crear una función metodo_usado
+                # que devuelev el valor menor y la opción escogida (ON o OFF).
+                valorON = self.__costeON + self.prob_ON[actual]["+1"] * self.valor_estados[next_posterior] \
+                          + self.prob_ON[actual]["+0.5"] * self.valor_estados[posterior] \
+                          + self.prob_ON[actual]["+0"] * self.valor_estados[actual] \
+                          + self.prob_ON[actual]["-0.5"] * self.valor_estados[anterior]
+                valorOFF = self.__costeOFF + self.prob_OFF[actual]["+0.5"] * self.valor_estados[posterior] \
+                           + self.prob_OFF[actual]["+0"] * self.valor_estados[actual] \
+                           + self.prob_OFF[actual]["-0.5"] * self.valor_estados[anterior]
+                next_valor, paso = self.metodo_usado(valorON, valorOFF)
+                # Se añade la elección a la ruta
                 self.ruta[actual].append(paso)
                 nuevos_valores.append(next_valor)
                 contador += 1
+        # En comparar_valores, analizamos si los nuevos valores son idénticos o no a los anteriores.
         fin = self.comparar_valores(nuevos_valores)
         contador = 0
+        # Se actualizan los pesos
         for elemento in self.temperaturas:
             self.valor_estados[str(elemento)] = round(nuevos_valores[contador], 2)
             contador += 1
+        # Si no es el fin, se repite de forma recursiva el proceso.
         if not fin:
             self.iteracion += 1
             self.ecuacion_Bellman()
