@@ -1,22 +1,16 @@
-# CÓDIGO ALGORITMO
+from Csv import Csv
 class Termostato:
     def __init__(self, temp_inicial: float, costeON: int, costeOFF: int):
         # Indicamos las distintas temperaturas y sus probabilidades.
         self.temperaturas = [16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 20.5, 21, 21.5, 22, 22.5, 23, 23.5,
                              24, 24.5, 25]
+        # Los costes y la temperatura inicial se chequean.
         self.__temp_inicial, self.__costeON, self.__costeOFF = self.check_valores(temp_inicial,
                                                                                   costeON, costeOFF)
         self.iteracion = 0
-        # Hemos diferenciado las probabilidades on y off. Además, hemos organizado las que están
-        # entre 16.5 y 24 en un mismo grupo, ya que son iguales.
-        self.prob_ON = {"16": {"+1": 0.2, "+0.5": 0.5, "+0": 0.3},
-                        "16.5-24": {"+1": 0.2, "+0.5": 0.5, "+0": 0.1, "-0.5": 0.2},
-                        "24.5": {"+0.5": 0.7, "+0": 0.2, "-0.5": 0.1},
-                        "25": {"+0.5": 0, "+0": 0.9, "-0.5": 0.1}}
-        self.prob_OFF = {"16": {"+0.5": 0.1, "+0": 0.9},
-                         "16.5-24": {"+0.5": 0.1, "+0": 0.4, "-0.5": 0.5},
-                         "24.5": {"+0.5": 0.1, "+0": 0.4, "-0.5": 0.5},
-                         "25": {"+0": 0.3, "-0.5": 0.7}}
+        # De estos archivos csv se sacan los diccionarios de probabilidades (uno para ON y otro para OFF).
+        self.lector = Csv("probON.csv", "probOFF.csv")
+        self.prob_ON, self.prob_OFF = self.lector.sacar_datos()
 
         self.valor_estados = {"16": 0, "16.5": 0, "17": 0, "17.5": 0, "18": 0, "18.5": 0, "19": 0,
                               "19.5": 0, "20": 0, "20.5": 0, "21": 0, "21.5": 0, "22": 0,
@@ -36,8 +30,6 @@ class Termostato:
     def ecuacion_Bellman(self):
         """Realiza la ecuación de Bellman según los costes elegidos para todos los estados."""
         nuevos_valores = []
-        for n in range(len(self.temperaturas)):
-            nuevos_valores.append(0)
         contador = 1
         for elemento in self.temperaturas:
             if elemento == 16:
@@ -46,10 +38,12 @@ class Termostato:
                          + self.prob_ON["16"]["+0"] * self.valor_estados["16"]
                 valor2 = self.__costeOFF + self.prob_OFF["16"]["+0.5"] * self.valor_estados["16.5"] \
                          + self.prob_OFF["16"]["+0"] * self.valor_estados["16"]
-                nuevos_valores[0], paso = self.metodo_usado(valor1, valor2)
+                next_valor, paso = self.metodo_usado(valor1, valor2)
                 self.ruta["16"].append(paso)
+                nuevos_valores.append(next_valor)
 
             elif elemento == 22:
+                nuevos_valores.append(0)
                 contador += 1
             elif elemento == 24.5:
                 valor1 = self.__costeON + self.prob_ON["24.5"]["+0.5"] * self.valor_estados["25"] \
@@ -58,30 +52,33 @@ class Termostato:
                 valor2 = self.__costeOFF + self.prob_OFF["24.5"]["+0.5"] * self.valor_estados["25"] \
                          + self.prob_OFF["24.5"]["+0"] * self.valor_estados["24.5"] \
                          + self.prob_OFF["24.5"]["-0.5"] * self.valor_estados["24"]
-                nuevos_valores[17], paso = self.metodo_usado(valor1, valor2)
+                next_valor, paso = self.metodo_usado(valor1, valor2)
                 self.ruta["24.5"].append(paso)
+                nuevos_valores.append(next_valor)
 
             elif elemento == 25:
                 valor1 = self.__costeON + self.prob_ON["25"]["+0"] * self.valor_estados["25"] \
                          + self.prob_ON["25"]["-0.5"] * self.valor_estados["24.5"]
                 valor2 = self.__costeOFF + self.prob_OFF["25"]["+0"] * self.valor_estados["25"] \
                          + self.prob_OFF["25"]["-0.5"] * self.valor_estados["24.5"]
-                nuevos_valores[18], paso = self.metodo_usado(valor1, valor2)
+                next_valor, paso = self.metodo_usado(valor1, valor2)
                 self.ruta["25"].append(paso)
+                nuevos_valores.append(next_valor)
             else:
                 actual = str(elemento)
                 anterior = str(self.temperaturas[contador - 1])
                 posterior = str(self.temperaturas[contador + 1])
                 next_posterior = str(self.temperaturas[contador + 2])
-                valor1 = self.__costeON + self.prob_ON["16.5-24"]["+1"] * self.valor_estados[next_posterior] \
-                         + self.prob_ON["16.5-24"]["+0.5"] * self.valor_estados[posterior] \
-                         + self.prob_ON["16.5-24"]["+0"] * self.valor_estados[actual] \
-                         + self.prob_ON["16.5-24"]["-0.5"] * self.valor_estados[anterior]
-                valor2 = self.__costeOFF + self.prob_OFF["16.5-24"]["+0.5"] * self.valor_estados[posterior] \
-                         + self.prob_OFF["16.5-24"]["+0"] * self.valor_estados[actual] \
-                         + self.prob_OFF["16.5-24"]["-0.5"] * self.valor_estados[anterior]
-                nuevos_valores[contador], paso = self.metodo_usado(valor1, valor2)
+                valor1 = self.__costeON + self.prob_ON[actual]["+1"] * self.valor_estados[next_posterior] \
+                         + self.prob_ON[actual]["+0.5"] * self.valor_estados[posterior] \
+                         + self.prob_ON[actual]["+0"] * self.valor_estados[actual] \
+                         + self.prob_ON[actual]["-0.5"] * self.valor_estados[anterior]
+                valor2 = self.__costeOFF + self.prob_OFF[actual]["+0.5"] * self.valor_estados[posterior] \
+                         + self.prob_OFF[actual]["+0"] * self.valor_estados[actual] \
+                         + self.prob_OFF[actual]["-0.5"] * self.valor_estados[anterior]
+                next_valor, paso = self.metodo_usado(valor1, valor2)
                 self.ruta[actual].append(paso)
+                nuevos_valores.append(next_valor)
                 contador += 1
         fin = self.comparar_valores(nuevos_valores)
         contador = 0

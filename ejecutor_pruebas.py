@@ -1,5 +1,4 @@
 from clase_termostato import Termostato
-
 temperatura = input("Escribe un número del 16 al 25:")
 if "." in temperatura:
     temperatura = float(temperatura)
