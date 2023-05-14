@@ -40,9 +40,9 @@ class Termostato:
                 valorON = self.__costeON + self.prob_ON["16"]["+1"] * self.valor_estados["17"] \
                           + self.prob_ON["16"]["+0.5"] * self.valor_estados["16.5"] \
                           + self.prob_ON["16"]["+0"] * self.valor_estados["16"]
-                valor2 = self.__costeOFF + self.prob_OFF["16"]["+0.5"] * self.valor_estados["16.5"] \
-                         + self.prob_OFF["16"]["+0"] * self.valor_estados["16"]
-                next_valor, paso = self.metodo_usado(valorON, valor2)
+                valorOFF = self.__costeOFF + self.prob_OFF["16"]["+0.5"] * self.valor_estados["16.5"] \
+                           + self.prob_OFF["16"]["+0"] * self.valor_estados["16"]
+                next_valor, paso = self.metodo_usado(valorON, valorOFF)
                 self.ruta["16"].append(paso)
                 nuevos_valores.append(next_valor)
 
@@ -54,19 +54,19 @@ class Termostato:
                 valorON = self.__costeON + self.prob_ON["24.5"]["+0.5"] * self.valor_estados["25"] \
                           + self.prob_ON["24.5"]["+0"] * self.valor_estados["24.5"] \
                           + self.prob_ON["24.5"]["-0.5"] * self.valor_estados["24"]
-                valor2 = self.__costeOFF + self.prob_OFF["24.5"]["+0.5"] * self.valor_estados["25"] \
-                         + self.prob_OFF["24.5"]["+0"] * self.valor_estados["24.5"] \
-                         + self.prob_OFF["24.5"]["-0.5"] * self.valor_estados["24"]
-                next_valor, paso = self.metodo_usado(valorON, valor2)
+                valorOFF = self.__costeOFF + self.prob_OFF["24.5"]["+0.5"] * self.valor_estados["25"] \
+                           + self.prob_OFF["24.5"]["+0"] * self.valor_estados["24.5"] \
+                           + self.prob_OFF["24.5"]["-0.5"] * self.valor_estados["24"]
+                next_valor, paso = self.metodo_usado(valorON, valorOFF)
                 self.ruta["24.5"].append(paso)
                 nuevos_valores.append(next_valor)
 
             elif elemento == 25:
                 valorON = self.__costeON + self.prob_ON["25"]["+0"] * self.valor_estados["25"] \
                           + self.prob_ON["25"]["-0.5"] * self.valor_estados["24.5"]
-                valor2 = self.__costeOFF + self.prob_OFF["25"]["+0"] * self.valor_estados["25"] \
-                         + self.prob_OFF["25"]["-0.5"] * self.valor_estados["24.5"]
-                next_valor, paso = self.metodo_usado(valorON, valor2)
+                valorOFF = self.__costeOFF + self.prob_OFF["25"]["+0"] * self.valor_estados["25"] \
+                           + self.prob_OFF["25"]["-0.5"] * self.valor_estados["24.5"]
+                next_valor, paso = self.metodo_usado(valorON, valorOFF)
                 self.ruta["25"].append(paso)
                 nuevos_valores.append(next_valor)
             else:
