@@ -90,6 +90,7 @@ class Termostato:
                 # Se añade la elección a la ruta
                 self.ruta[actual].append(paso)
                 nuevos_valores.append(next_valor)
+            # Las iteraciones se suman si el valor del estado inicial se modifica
             if elemento == self.__temp_inicial:
                 next_valor = round(nuevos_valores[contador], 2)
                 if next_valor != self.valor_estados[str(elemento)]:
