@@ -8,7 +8,7 @@ class Csv:
         self.__archivoOFF = archivoOFF
 
     def sacar_datos(self):
-        """De aquí se sacn las tablas de las probabilidades como diccionarios de diccionarios."""
+        """De aquí se sacan las tablas de las probabilidades como diccionarios de diccionarios."""
         csvfile1 = open(self.__archivoON, 'r', encoding="utf-8")
         csvON = csv.reader(csvfile1)
         csvfile2 = open(self.__archivoOFF, 'r', encoding="utf-8")
