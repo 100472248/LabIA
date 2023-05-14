@@ -32,7 +32,7 @@ class Termostato:
     def ecuacion_Bellman(self):
         """Realiza la ecuación de Bellman según los costes elegidos para todos los estados."""
         nuevos_valores = []
-        contador = 1
+        contador = 0
         for elemento in self.temperaturas:
             # Diferenciamos los estados 16, 22, 24.5 y 25 porque no siguen la misma estructura
             # que el resto.
@@ -49,7 +49,7 @@ class Termostato:
             elif elemento == 22:
                 # Como es el estado final, su coste siempre es 0.
                 nuevos_valores.append(0)
-                contador += 1
+
             elif elemento == 24.5:
                 valorON = self.__costeON + self.prob_ON["24.5"]["+0.5"] * self.valor_estados["25"] \
                           + self.prob_ON["24.5"]["+0"] * self.valor_estados["24.5"] \
@@ -90,7 +90,12 @@ class Termostato:
                 # Se añade la elección a la ruta
                 self.ruta[actual].append(paso)
                 nuevos_valores.append(next_valor)
-                contador += 1
+            if elemento == self.__temp_inicial:
+                next_valor = round(nuevos_valores[contador], 2)
+                if next_valor != self.valor_estados[str(elemento)]:
+                    self.iteracion += 1
+            contador += 1
+
         # En comparar_valores, analizamos si los nuevos valores son idénticos o no a los anteriores.
         fin = self.comparar_valores(nuevos_valores)
         contador = 0
@@ -100,7 +105,6 @@ class Termostato:
             contador += 1
         # Si no es el fin, se repite de forma recursiva el proceso.
         if not fin:
-            self.iteracion += 1
             self.ecuacion_Bellman()
 
     def check_valores(self, temperatura, costeON, costeOFF):

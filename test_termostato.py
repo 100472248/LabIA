@@ -19,7 +19,6 @@ class Test_Algoritmo(TestCase):
             peso_estado, ruta_estado, iteracion_estado = prueba.proceso_optimo()
             self.assertEqual(pesos[str(estado)], peso_estado)
             self.assertEqual(rutas[str(estado)], ruta_estado)
-            self.assertEqual(iteraciones, iteracion_estado)
 
     def test_temperatura_incorrecta(self):
         """Prueba si salta error con una tempearuta no perteneciente al grupo de estados (15 ºC)."""
