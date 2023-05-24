@@ -1,7 +1,8 @@
 import random
 from unittest import TestCase
 from clase_termostato import Termostato
-class Test_Algoritmo(TestCase):
+
+class Test_algoritmo(TestCase):
     """Trata de comprobar el funcionamiento correcto del programa y sus excepciones."""
 
     def test_coste_encendido_negativo(self):

@@ -84,7 +84,7 @@ class Termostato:
                 nuevos_valores.append(next_valor)
             contador += 1
         # En comparar_valores valoramos si se han estabilizado los valores esperados. En nuestro caso la tolerancia es
-        # bastante baja, hemos elegido que sea 0.001, es decir, que los valores, que tienen dos decimales sean identicos
+        # bastante baja, hemos elegido que sea 0.01, es decir, que los valores, que tienen dos decimales sean identicos
         fin = self.comparar_valores(nuevos_valores)
         contador = 0
         # Se actualizan los valores esperados
